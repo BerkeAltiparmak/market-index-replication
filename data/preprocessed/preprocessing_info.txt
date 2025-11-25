@@ -1,0 +1,75 @@
+================================================================================
+Index Replication Project - Data Preprocessing Summary
+================================================================================
+
+CONSTRAINTS APPLIED:
+--------------------------------------------------------------------------------
+1. EXCLUDED INDUSTRIES:
+   - Industry #2: Mines (Mining and Materials)
+   - Industry #3: Oil (Oil and Petroleum Products)
+
+2. WEIGHT CONSTRAINTS (to be applied in optimization):
+   - Industry #11 (Machn - Machinery and Business Equipment): max 8%
+   - Industry #13 (Trans - Transportation): max 1%
+   - Industry #14 (Utils - Utilities): max 1%
+   - All other industries: max 20%
+   - All weights must be non-negative
+   - All weights must sum to 100%
+
+3. TRANSACTION COSTS:
+   - 0.10% of dollar amount traded (both buy and sell)
+   - Portfolio must be self-financing
+
+DATA SUMMARY:
+--------------------------------------------------------------------------------
+Total observations: 1191
+Date range: 1926-07 to 2025-09
+Number of years: 99.2
+
+INCLUDED INDUSTRIES (after exclusions):
+--------------------------------------------------------------------------------
+ 1. Food
+ 2. Clths
+ 3. Durbl
+ 4. Chems
+ 5. Cnsum
+ 6. Cnstr
+ 7. Steel
+ 8. FabPr
+ 9. Machn
+10. Cars
+11. Trans
+12. Utils
+13. Rtail
+14. Finan
+15. Other
+
+COLUMNS IN OUTPUT FILE:
+--------------------------------------------------------------------------------
+- Date: Month (YYYY-MM-DD format)
+- Food: Monthly return (%) for Food industry portfolio
+- Clths: Monthly return (%) for Clths industry portfolio
+- Durbl: Monthly return (%) for Durbl industry portfolio
+- Chems: Monthly return (%) for Chems industry portfolio
+- Cnsum: Monthly return (%) for Cnsum industry portfolio
+- Cnstr: Monthly return (%) for Cnstr industry portfolio
+- Steel: Monthly return (%) for Steel industry portfolio
+- FabPr: Monthly return (%) for FabPr industry portfolio
+- Machn: Monthly return (%) for Machn industry portfolio
+- Cars: Monthly return (%) for Cars industry portfolio
+- Trans: Monthly return (%) for Trans industry portfolio
+- Utils: Monthly return (%) for Utils industry portfolio
+- Rtail: Monthly return (%) for Rtail industry portfolio
+- Finan: Monthly return (%) for Finan industry portfolio
+- Other: Monthly return (%) for Other industry portfolio
+- Mkt: Total market return (%) = Mkt-RF + RF
+- RF: Risk-free rate (%)
+
+NOTES:
+--------------------------------------------------------------------------------
+- All returns are in percentage points (e.g., 2.89 means 2.89%)
+- Missing values (indicated by -99.99 or -999) have been removed
+- Market return is calculated as Mkt-RF + RF per project instructions
+- Data source: Kenneth French Data Library
+- Industry portfolios are value-weighted
+- Monthly rebalancing is assumed in the optimization problem

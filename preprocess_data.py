@@ -25,9 +25,29 @@ def load_industry_portfolios():
     """Load the 17 industry portfolios data."""
     print("Loading industry portfolios...")
 
-    # Read the CSV, skipping header rows
-    # Row 12 (index 11) contains column names, data starts at row 13 (index 12)
-    df = pd.read_csv(INDUSTRY_FILE, skiprows=11)
+    # Read the file and find where value-weighted section ends
+    with open(INDUSTRY_FILE, 'r') as f:
+        lines = f.readlines()
+
+    # Find the start of value-weighted section (row with column names)
+    # and end (before equal-weighted section)
+    start_idx = None
+    end_idx = None
+
+    for i, line in enumerate(lines):
+        if 'Average Value Weighted Returns' in line:
+            start_idx = i + 1  # Column names are on the next line
+        elif 'Average Equal Weighted Returns' in line:
+            end_idx = i
+            break
+
+    if start_idx is None:
+        raise ValueError("Could not find value-weighted returns section")
+
+    print(f"Reading value-weighted returns from line {start_idx+1} to line {end_idx}")
+
+    # Read only the value-weighted section
+    df = pd.read_csv(INDUSTRY_FILE, skiprows=start_idx, nrows=end_idx-start_idx-1)
 
     # Clean up column names (remove leading/trailing spaces)
     df.columns = df.columns.str.strip()
@@ -35,8 +55,15 @@ def load_industry_portfolios():
     # Rename the first column to 'Date'
     df.rename(columns={df.columns[0]: 'Date'}, inplace=True)
 
-    # Convert date column from YYYYMM to datetime
-    df['Date'] = pd.to_datetime(df['Date'].astype(str), format='%Y%m')
+    # Convert date column from YYYYMM to datetime, filtering invalid dates
+    df['Date_str'] = df['Date'].astype(str).str.strip()
+
+    # Filter to only rows with valid YYYYMM format (6 digits)
+    df = df[df['Date_str'].str.match(r'^\d{6}$', na=False)]
+
+    # Convert to datetime
+    df['Date'] = pd.to_datetime(df['Date_str'], format='%Y%m')
+    df = df.drop('Date_str', axis=1)
 
     # Get the column names (industries)
     industry_cols = df.columns[1:].tolist()
@@ -44,10 +71,6 @@ def load_industry_portfolios():
 
     # Replace missing value indicators with NaN
     df.replace([-99.99, -999], np.nan, inplace=True)
-
-    # Keep only monthly data (filter out annual summaries if present)
-    # Monthly data has dates like YYYYMM where MM is between 01 and 12
-    df = df[df['Date'].notna()]
 
     print(f"Loaded {len(df)} monthly observations from {df['Date'].min()} to {df['Date'].max()}")
 
@@ -67,11 +90,15 @@ def load_market_factors():
     # Rename the first column to 'Date'
     df.rename(columns={df.columns[0]: 'Date'}, inplace=True)
 
-    # Convert date column from YYYYMM to datetime
-    df['Date'] = pd.to_datetime(df['Date'].astype(str), format='%Y%m')
+    # Convert date column from YYYYMM to datetime, filtering invalid dates
+    df['Date_str'] = df['Date'].astype(str).str.strip()
 
-    # Keep only rows with valid dates (filter out annual summaries)
-    df = df[df['Date'].notna()]
+    # Filter to only rows with valid YYYYMM format (6 digits)
+    df = df[df['Date_str'].str.match(r'^\d{6}$', na=False)]
+
+    # Convert to datetime
+    df['Date'] = pd.to_datetime(df['Date_str'], format='%Y%m')
+    df = df.drop('Date_str', axis=1)
 
     # Calculate total market return: Mkt-RF + RF
     df['Mkt'] = df['Mkt-RF'] + df['RF']
