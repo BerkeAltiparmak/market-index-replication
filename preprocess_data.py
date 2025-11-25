@@ -69,6 +69,10 @@ def load_industry_portfolios():
     industry_cols = df.columns[1:].tolist()
     print(f"Found {len(industry_cols)} industries: {industry_cols}")
 
+    # Convert all numeric columns to float (this will clean whitespace)
+    for col in industry_cols:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+
     # Replace missing value indicators with NaN
     df.replace([-99.99, -999], np.nan, inplace=True)
 
@@ -99,6 +103,10 @@ def load_market_factors():
     # Convert to datetime
     df['Date'] = pd.to_datetime(df['Date_str'], format='%Y%m')
     df = df.drop('Date_str', axis=1)
+
+    # Convert all factor columns to numeric (this will clean whitespace)
+    for col in ['Mkt-RF', 'SMB', 'HML', 'RF']:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
 
     # Calculate total market return: Mkt-RF + RF
     df['Mkt'] = df['Mkt-RF'] + df['RF']
@@ -146,6 +154,10 @@ def merge_and_filter_data(industry_df, factors_df, industry_cols):
 
     # Create output dataframe
     output_df = merged_df[['Date'] + allowed_industries + ['Mkt', 'RF']].copy()
+
+    # Round all numeric columns to 4 decimal places to avoid floating point precision issues
+    numeric_cols = allowed_industries + ['Mkt', 'RF']
+    output_df[numeric_cols] = output_df[numeric_cols].round(4)
 
     # Handle any remaining missing values
     missing_counts = output_df.isnull().sum()
