@@ -10,4 +10,4 @@ jupyterlab
 ipykernel
 nbconvert
 tqdm
-
+statsmodels
